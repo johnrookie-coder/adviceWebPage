@@ -1,10 +1,16 @@
 "use strict";
 
 const adviceContainer = document.querySelector(".advice");
+const adviceDice = document.querySelector(".advice__dice");
+const spanElement = document.querySelector(".advice__id");
+const adviceText = document.querySelector(".advice__text");
 
+// Fetch API
 const getAdvices = async function () {
   try {
-    const response = await fetch("https://api.adviceslip.com/advice");
+    const idNum = Math.floor(Math.random() * 200 + 1);
+
+    const response = await fetch(`https://api.adviceslip.com/advice/${idNum}`);
     const data = await response.json();
 
     if (!response.ok) throw new Error("An error occurred with the API");
@@ -15,32 +21,13 @@ const getAdvices = async function () {
   }
 };
 
+// Set the HTML contents in the UI
 const renderHtmlMarkup = function (data) {
-  const htmlMarkup = `
-        <div class="advice__contents">
-          <h1 class="heading heading--xs mb--sm">
-            Advice <span class="id">#${data.id}</span>
-          </h1>
-          <p class="advice__text mb--lg">
-          "${data.advice}"
-          </p>
-
-          <img
-            src="images/pattern-divider-mobile.svg"
-            alt="divider"
-            class="mb--sm"
-          />
-        </div>
-
-        <div class="advice__dice">
-          <img src="images/icon-dice.svg" alt="dice" class="mb--md img" />
-        </div>
-      `;
-
-  adviceContainer.insertAdjacentHTML("beforeend", htmlMarkup);
-  diceClickEvent();
+  spanElement.textContent = `#${data.id}`;
+  adviceText.textContent = `\"${data.advice}\"`;
 };
 
+// Handle when the Fetching encountered an error
 const renderErr = function () {
   const errHtml = `
             <div class="advice__contents">
@@ -51,28 +38,10 @@ const renderErr = function () {
                  Something went wrong!
               </p>
             </div>`;
+
+  adviceContainer.innerHTML = "";
   adviceContainer.insertAdjacentHTML("beforeend", errHtml);
 };
 
-const diceClickEvent = function () {
-  const adviceDice = document.querySelector(".advice__dice");
-
-  adviceDice.addEventListener("click", function (e) {
-    adviceContainer.innerHTML = "";
-
-    if (e.target.classList.contains("img")) reloadPage();
-
-    reloadPage();
-  });
-};
-
-const reloadPage = function () {
-  // Chrome -reload
-  window.location.reload();
-
-  // Firefox -reload
-  window.location.reload(true);
-};
-
-// Init
+adviceDice.addEventListener("click", getAdvices);
 getAdvices();
